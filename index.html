@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentación: Proyecto Cx - Comfamiliar Risaralda</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- 
+    Color Palette Used: "Vibrant & Energetic" on a light theme.
+    - Primary Accent: #0891b2 (Cyan-600)
+    - Dark Text/BG: #1e293b (Slate-800)
+    - Callout Accent: #f43f5e (Rose-500)
+    - Highlight: #f59e0b (Amber-500)
+    - Background: #f1f5f9 (Slate-100)
+    - White: #FFFFFF
+    
+    Narrative & Structure Plan (10-Point Framework):
+    1. Hero Section: Full-screen intro.
+    2. Roadmap Section: An interactive, visually engaging roadmap of the 10 key points.
+    3. Content Sections: Each of the 10 points is a dedicated section with animations.
+    4. Thank You Section: Final closing slide.
+
+    Visualization Choices & Justification (NO SVG, NO MERMAID JS):
+    - All visuals are pure HTML/CSS with Tailwind or rendered on a <canvas> element by Chart.js.
+    - Gantt chart is implemented using a responsive HTML/CSS grid with interactive inputs.
+    - Animations are handled via Intersection Observer API and CSS classes.
+
+    Confirmation: NEITHER Mermaid JS NOR SVG were used in this file.
+    -->
+    <style>
+        /* FIX: Ensure the vertical scrollbar is always available to prevent scrolling issues in some environments. */
+        html {
+            overflow-y: scroll;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            color: #1e293b;
+        }
+        .section-content {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 8rem 1rem;
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link.active {
+            color: #0891b2;
+            border-bottom-color: #0891b2;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 120px;
+            height: 120px;
+            margin: 0 auto;
+        }
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .fade-in-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .roadmap-item::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: -1.25rem;
+            width: 1.25rem;
+            height: 2px;
+            background-color: #cbd5e1;
+        }
+        .roadmap-item:last-child::after {
+            display: none;
+        }
+        @media (max-width: 1023px) {
+            .roadmap-item::after {
+                top: 100%;
+                left: 50%;
+                right: auto;
+                width: 2px;
+                height: 2.5rem;
+            }
+        }
+        [contenteditable]:focus { 
+            outline: 2px solid #0891b2; 
+            background-color: #f0f9ff; 
+            border-radius: 4px; 
+        }
+        .delete-btn { 
+            opacity: 0; 
+            transition: opacity 0.3s ease;
+            cursor: pointer;
+        }
+        .item-container:hover .delete-btn { 
+            opacity: 1; 
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+
+    <nav id="main-nav" class="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-sm border-b border-slate-200/80 p-3 z-50 hidden md:block">
+        <div class="container mx-auto flex justify-center items-center gap-x-6 text-sm font-semibold text-slate-600">
+            <a href="#strategy" class="nav-link px-2 py-1" data-target="strategy">Estrategia</a>
+            <a href="#leadership" class="nav-link px-2 py-1" data-target="leadership">Involucramiento</a>
+            <a href="#awareness" class="nav-link px-2 py-1" data-target="awareness">Sensibilización</a>
+            <a href="#methodology" class="nav-link px-2 py-1" data-target="methodology">Metodología</a>
+            <a href="#listening" class="nav-link px-2 py-1" data-target="listening">Escucha</a>
+            <a href="#metrics" class="nav-link px-2 py-1" data-target="metrics">Métricas</a>
+            <a href="#analytics" class="nav-link px-2 py-1" data-target="analytics">Analítica</a>
+            <a href="#communication" class="nav-link px-2 py-1" data-target="communication">Comunicación</a>
+            <a href="#culture" class="nav-link px-2 py-1" data-target="culture">Cultura</a>
+            <a href="#timeline" class="nav-link px-2 py-1" data-target="timeline">Cronograma</a>
+        </div>
+    </nav>
+
+    <!-- FIX: Added top padding to the main content area to offset the fixed navigation bar. -->
+    <main class="pt-16">
+        <section class="section-content">
+            <div class="relative z-10 max-w-5xl w-full text-center space-y-8">
+                <header>
+                    <p class="text-2xl font-semibold tracking-wider text-cyan-600 mb-4">Comfamiliar Risaralda</p>
+                    <h1 class="text-5xl md:text-7xl font-extrabold text-slate-800">Proyecto Customer Experience</h1>
+                    <p class="mt-4 text-3xl md:text-4xl font-light text-slate-600">Retomando la Ruta</p>
+                </header>
+                <blockquote class="text-2xl italic text-slate-500 max-w-2xl mx-auto">
+                    "La pasión por el cliente es contagiosa, contagiemos a todos."
+                </blockquote>
+                <div class="border-t border-slate-300 pt-6 mt-8">
+                    <p class="text-lg text-slate-700">A cargo de: <span class="font-bold">Transformación Empresarial Digital</span> | Vector Organización y Cultura</p>
+                    <p id="presentation-date" class="text-lg font-semibold mt-1 text-slate-700"></p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section-content bg-white">
+            <div class="max-w-7xl w-full text-center fade-in-section">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-12">Nuestro Roadmap Estratégico</h2>
+                <div class="flex flex-col lg:flex-row justify-center items-center gap-10">
+                    <a href="#strategy" class="roadmap-item relative text-center"><div class="w-24 h-24 bg-cyan-100 text-cyan-600 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-2">1</div><p class="font-semibold">Estrategia</p></a>
+                    <a href="#leadership" class="roadmap-item relative text-center"><div class="w-24 h-24 bg-cyan-100 text-cyan-600 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-2">2</div><p class="font-semibold">Involucramiento</p></a>
+                    <a href="#awareness" class="roadmap-item relative text-center"><div class="w-24 h-24 bg-cyan-100 text-cyan-600 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-2">3</div><p class="font-semibold">Sensibilización</p></a>
+                    <a href="#methodology" class="roadmap-item relative text-center"><div class="w-24 h-24 bg-cyan-100 text-cyan-600 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-2">4</div><p class="font-semibold">Metodología</p></a>
+                    <a href="#listening" class="roadmap-item relative text-center"><div class="w-24 h-24 bg-cyan-100 text-cyan-600 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-2">5</div><p class="font-semibold">Escucha</p></a>
+                </div>
+                 <div class="flex flex-col lg:flex-row justify-center items-center gap-10 mt-10">
+                    <a href="#metrics" class="roadmap-item relative text-center"><div class="w-24 h-24 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-2">6</div><p class="font-semibold">Métricas</p></a>
+                    <a href="#analytics" class="roadmap-item relative text-center"><div class="w-24 h-24 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-2">7</div><p class="font-semibold">Analítica</p></a>
+                    <a href="#communication" class="roadmap-item relative text-center"><div class="w-24 h-24 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-2">8</div><p class="font-semibold">Comunicación</p></a>
+                    <a href="#culture" class="roadmap-item relative text-center"><div class="w-24 h-24 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-2">9</div><p class="font-semibold">Cultura y Equipo</p></a>
+                    <a href="#timeline" class="roadmap-item relative text-center"><div class="w-24 h-24 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-2">10</div><p class="font-semibold">Cronograma</p></a>
+                </div>
+            </div>
+        </section>
+        
+        <section id="strategy" class="section-content">
+            <div class="max-w-5xl w-full text-center fade-in-section">
+                <h2 class="text-3xl font-bold text-slate-800 mb-2">1. Declaración de la Estrategia</h2>
+                <p class="text-lg text-slate-500 mb-6">Definir el "porqué" y el "para qué" de nuestra iniciativa de Experiencia de Cliente.</p>
+                <div class="bg-white p-8 rounded-2xl shadow-xl space-y-4 text-left">
+                    <p>La etapa diagnóstica del proceso de <strong>Aportes y Subsidio</strong> tiene como propósito comprender y mapear el viaje del cliente, identificando necesidades, expectativas, percepciones y momentos clave de la experiencia de afiliados y empresas.</p>
+                    <p>Asimismo, se busca evaluar la eficiencia de los sistemas, procesos, tiempos, integración tecnológica y uso de recursos, con el fin de identificar brechas y oportunidades de mejora.</p>
+                    <p class="font-semibold text-cyan-600">Este diagnóstico es fundamental para garantizar el cumplimiento normativo, fortalecer la confianza de los usuarios y sentar las bases de iniciativas de innovación y transformación digital que ofrezcan una experiencia superior.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="leadership" class="section-content">
+             <div class="max-w-5xl w-full text-center fade-in-section">
+                <h2 class="text-3xl font-bold text-slate-800 mb-2">2. Involucramiento del Equipo Directivo</h2>
+                <p class="text-lg text-slate-500 mb-6">El éxito de la estrategia de CX depende del compromiso visible y sostenido de nuestros líderes.</p>
+                <div class="grid md:grid-cols-2 gap-6 text-left">
+                    <div class="bg-white p-6 rounded-2xl shadow-xl">
+                        <h3 class="font-bold text-xl text-cyan-600 mb-2">¿Por qué es crucial?</h3>
+                        <ul class="list-disc list-inside space-y-2 text-sm">
+                            <li>Asigna los recursos necesarios (tiempo, equipo, presupuesto).</li>
+                            <li>Elimina barreras y silos organizacionales.</li>
+                            <li>Comunica la importancia estratégica del proyecto a toda la empresa.</li>
+                            <li>Modela una cultura centrada en el cliente desde el ejemplo.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-xl">
+                        <h3 class="font-bold text-xl text-cyan-600 mb-2">¿Qué se espera?</h3>
+                         <ul class="list-disc list-inside space-y-2 text-sm">
+                            <li>Participación activa en las reuniones de avance (Sprint Reviews).</li>
+                            <li>Apoyo en la toma de decisiones estratégicas.</li>
+                            <li>Ser embajadores del proyecto, promoviendo su valor.</li>
+                            <li>Facilitar la colaboración entre las áreas transversales.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="awareness" class="section-content">
+            <div class="max-w-5xl w-full text-center fade-in-section">
+                <h2 class="text-3xl font-bold text-slate-800 mb-2">3. Sensibilización a toda la Organización</h2>
+                <p class="text-lg text-slate-500 mb-6">La Experiencia del Cliente es responsabilidad de todos, no solo de un área.</p>
+                 <div class="bg-white p-8 rounded-2xl shadow-xl space-y-4">
+                    <h3 class="font-bold text-xl text-cyan-600">Nuestro Plan de Socialización</h3>
+                    <p class="text-left">Para asegurar que toda la organización comprenda y se apropie de esta iniciativa, implementaremos:</p>
+                    <ul class="list-disc list-inside text-left space-y-2">
+                        <li><span class="font-semibold text-amber-500">Comunicaciones Internas:</span> Mensajes claros y periódicos sobre los avances y la importancia del proyecto.</li>
+                        <li><span class="font-semibold text-amber-500">Talleres de Sensibilización:</span> Sesiones cortas para explicar qué es CX, por qué es importante y cómo el rol de cada colaborador impacta la experiencia final.</li>
+                        <li><span class="font-semibold text-amber-500">Embajadores CX:</span> Identificar líderes en diferentes áreas que ayuden a difundir el mensaje y a impulsar el cambio desde adentro.</li>
+                    </ul>
+                 </div>
+            </div>
+        </section>
+
+        <section id="methodology" class="section-content">
+            <div class="max-w-5xl w-full fade-in-section">
+                <h2 class="text-3xl font-bold text-center text-slate-800 mb-2">4. Metodología 360°</h2>
+                <p class="text-center text-lg text-slate-500 mb-10 max-w-3xl mx-auto">
+                    Gestionaremos el proyecto bajo un marco de trabajo ágil <strong>Scrum</strong> para garantizar la entrega de valor continua y la adaptabilidad en cada fase.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-xl">
+                        <h3 class="text-2xl font-bold text-cyan-600 flex items-center gap-4">🗺️ Customer Journey Map</h3>
+                        <p class="mt-3 text-base leading-relaxed">Mapearemos el viaje actual del cliente, identificando sus acciones, pensamientos y emociones para visualizar los momentos de verdad y los puntos de dolor.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-xl">
+                        <h3 class="text-2xl font-bold text-cyan-600 flex items-center gap-4">🗣️ Voz del Cliente (VoC)</h3>
+                        <p class="mt-3 text-base leading-relaxed">Mediremos la lealtad y satisfacción con encuestas (NPS, CSAT, CES) y analizaremos datos existentes de PQRS para cuantificar el impacto de la experiencia.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-xl">
+                        <h3 class="text-2xl font-bold text-cyan-600 flex items-center gap-4">👥 Voz del Empleado (VoE)</h3>
+                        <p class="mt-3 text-base leading-relaxed">Realizaremos focus groups con nuestros colaboradores para entender los obstáculos, procesos internos y oportunidades de mejora desde su perspectiva.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-xl">
+                        <h3 class="text-2xl font-bold text-cyan-600 flex items-center gap-4">🏗️ Service Blueprint</h3>
+                        <p class="mt-3 text-base leading-relaxed">Conectaremos la experiencia visible del cliente con los procesos internos (backstage) para identificar fallas sistémicas que originan una mala experiencia.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="listening" class="section-content">
+            <div class="max-w-5xl w-full text-center fade-in-section">
+                <h2 class="text-3xl font-bold text-slate-800 mb-2">5. Escuchar la Voz del Cliente</h2>
+                <p class="text-lg text-slate-500 mb-6">Combinaremos diferentes fuentes para obtener una visión completa y profunda.</p>
+                <div class="grid md:grid-cols-3 gap-6 text-left">
+                    <div class="bg-white p-6 rounded-2xl shadow-xl">
+                        <h3 class="font-bold text-xl text-cyan-600 mb-2">Entrevistas</h3>
+                        <p class="text-sm">Conversaciones uno a uno para explorar en profundidad las motivaciones, frustraciones y necesidades no expresadas de nuestros clientes.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-xl">
+                        <h3 class="font-bold text-xl text-cyan-600 mb-2">Focus Groups</h3>
+                        <p class="text-sm">Sesiones grupales para validar hallazgos, generar ideas y entender percepciones colectivas sobre la experiencia.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-xl">
+                        <h3 class="font-bold text-xl text-cyan-600 mb-2">Encuestas VoC</h3>
+                        <p class="text-sm">Medición cuantitativa a través de métricas estandarizadas (NPS, CSAT, CES) para dimensionar la satisfacción y el esfuerzo.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="metrics" class="section-content">
+            <div class="max-w-5xl w-full fade-in-section">
+                <h2 class="text-3xl font-bold text-center text-slate-800 mb-10">6. Métricas de Experiencia</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                    <div class="bg-white p-4 rounded-2xl shadow-xl flex flex-col items-center">
+                        <h4 class="font-bold text-slate-800">NPS</h4>
+                        <p class="text-xs text-slate-500 mb-2">Lealtad</p>
+                        <div class="chart-container"><canvas id="kpi-nps-chart"></canvas></div>
+                        <p class="text-2xl font-extrabold text-cyan-600 mt-2">25</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl shadow-xl flex flex-col items-center">
+                        <h4 class="font-bold text-slate-800">CSAT</h4>
+                        <p class="text-xs text-slate-500 mb-2">Satisfacción</p>
+                        <div class="chart-container"><canvas id="kpi-csat-chart"></canvas></div>
+                        <p class="text-2xl font-extrabold text-cyan-600 mt-2">75%</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl shadow-xl flex flex-col items-center">
+                        <h4 class="font-bold text-slate-800">CES</h4>
+                        <p class="text-xs text-slate-500 mb-2">Esfuerzo</p>
+                        <div class="chart-container"><canvas id="kpi-ces-chart"></canvas></div>
+                         <p class="text-2xl font-extrabold text-rose-500 mt-2">4.8</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="analytics" class="section-content">
+               <div class="max-w-5xl w-full text-center fade-in-section">
+                <h2 class="text-3xl font-bold text-slate-800 mb-2">7. Analítica de Datos</h2>
+                <p class="text-lg text-slate-500 mb-6">Convertir los datos en insights accionables es el corazón del diagnóstico.</p>
+                 <div class="bg-white p-8 rounded-2xl shadow-xl space-y-4">
+                    <h3 class="font-bold text-xl text-cyan-600">De la Voz al Plan de Acción</h3>
+                    <p class="text-left">Nuestro proceso de análisis se centrará en consolidar todos los hallazgos cualitativos y cuantitativos para identificar patrones y causas raíz. La herramienta clave será la <strong>Matriz de Oportunidades</strong>, que nos permitirá priorizar las iniciativas de mejora según su <strong>Impacto en el cliente</strong> y el <strong>Esfuerzo de implementación</strong>, enfocándonos en los "Quick Wins" y proyectos estratégicos.</p>
+                 </div>
+            </div>
+        </section>
+
+        <section id="communication" class="section-content">
+            <div class="max-w-5xl w-full text-center fade-in-section">
+                <h2 class="text-3xl font-bold text-slate-800 mb-2">8. Comunicación de Resultados</h2>
+                <p class="text-lg text-slate-500 mb-6">Compartiremos los hallazgos de forma clara y transparente para impulsar la acción.</p>
+                <div class="bg-white p-8 rounded-2xl shadow-xl">
+                    <h3 class="text-2xl font-bold text-slate-800 mb-4">Entregables Clave</h3>
+                    <ul class="text-left space-y-2 text-slate-700">
+                        <li class="flex items-start gap-3"><span class="text-cyan-600 font-bold mt-1">✓</span><span><strong>Informe Ejecutivo</strong> con hallazgos y recomendaciones.</span></li>
+                        <li class="flex items-start gap-3"><span class="text-cyan-600 font-bold mt-1">✓</span><span><strong>CJM y Service Blueprint</strong> detallados y visuales.</span></li>
+                        <li class="flex items-start gap-3"><span class="text-cyan-600 font-bold mt-1">✓</span><span><strong>Matriz de Oportunidades</strong> priorizada (Quick Wins, etc.).</span></li>
+                        <li class="flex items-start gap-3"><span class="text-cyan-600 font-bold mt-1">✓</span><span><strong>Presentación de Resultados</strong> para stakeholders.</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="culture" class="section-content">
+            <div class="max-w-5xl w-full text-center fade-in-section">
+                <h2 class="text-3xl font-bold text-slate-800 mb-6">9. Cultura y Equipo</h2>
+                <p class="text-lg text-slate-500 mb-6">Las personas son el motor para construir una cultura centrada en el cliente.</p>
+                <div id="team-organigram-container" class="bg-white p-8 rounded-2xl text-center shadow-xl w-full">
+                    <!-- El organigrama del equipo se renderizará aquí -->
+                </div>
+            </div>
+        </section>
+        
+        <section id="timeline" class="section-content">
+            <div class="max-w-7xl w-full fade-in-section">
+                <h2 class="text-3xl font-bold text-center text-slate-800 mb-8">10. Cronograma</h2>
+                <div id="gantt-container" class="w-full">
+                    <!-- El cronograma se renderizará aquí -->
+                </div>
+            </div>
+        </section>
+
+        <section class="section-content">
+            <div class="relative z-10 max-w-5xl w-full text-center">
+                <h2 class="text-6xl font-extrabold text-slate-800">¡Gracias!</h2>
+                <p class="mt-4 text-2xl text-slate-600">¿Preguntas?</p>
+                <div class="mt-12">
+                    <a href="https://proyectos-ted-cultura.odoo.com/cx-comfamiliar" target="_blank" rel="noopener noreferrer" class="bg-amber-400 text-slate-900 font-bold py-3 px-8 rounded-lg text-xl transition-transform hover:scale-105 inline-block">
+                        Ir al Proyecto
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script type="module">
+        // --- UI INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const updateDate = () => {
+                const dateElement = document.getElementById('presentation-date');
+                if (dateElement) {
+                    const now = new Date();
+                    const options = { weekday: 'long', month: 'long', day: 'numeric' };
+                    dateElement.textContent = now.toLocaleDateString('es-CO', options);
+                }
+            };
+            updateDate();
+
+            const sections = document.querySelectorAll('.section-content[id]');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.4
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const navLink = document.querySelector(`.nav-link[data-target="${entry.target.id}"]`);
+                    if (entry.target.id === 'strategy' && !entry.target.querySelector('.fade-in-section').classList.contains('visible')) {
+                        entry.target.querySelector('.fade-in-section').classList.add('visible');
+                    }
+                    if (entry.isIntersecting) {
+                        entry.target.querySelector('.fade-in-section')?.classList.add('visible');
+                        if (navLink) {
+                            navLinks.forEach(link => link.classList.remove('active'));
+                            navLink.classList.add('active');
+                        }
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                if (section.id) {
+                    observer.observe(section);
+                }
+            });
+
+            const createDoughnutChart = (elementId, data, colors) => {
+                const ctx = document.getElementById(elementId)?.getContext('2d');
+                if (!ctx) return;
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: data,
+                            backgroundColor: colors,
+                            borderColor: '#f1f5f9',
+                            borderWidth: 4,
+                            borderRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '70%',
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { enabled: false }
+                        }
+                    }
+                });
+            };
+
+            createDoughnutChart('kpi-nps-chart', [25, 75], ['#0891b2', '#e2e8f0']);
+            createDoughnutChart('kpi-csat-chart', [75, 25], ['#0891b2', '#e2e8f0']);
+            createDoughnutChart('kpi-ces-chart', [68, 32], ['#f43f5e', '#e2e8f0']);
+            
+            // Initialize interactive components in demo mode
+            initializeInteractiveDemo();
+        });
+
+        // --- INTERACTIVE DEMO COMPONENTS (NO FIREBASE) ---
+        function initializeInteractiveDemo() {
+            
+            // --- GANTT CHART LOGIC ---
+            const ganttContainer = document.getElementById('gantt-container');
+            if (!ganttContainer) return;
+
+            let ganttData = [
+                { name: "Kick-off y Alineación", start: 1, end: 2, progress: 100 },
+                { name: "Talleres de CJM y Blueprint", start: 2, end: 5, progress: 50 },
+                { name: "Entrevistas con Empleados y Clientes", start: 4, end: 9, progress: 25 },
+                { name: "Lanzamiento de Encuestas VoC", start: 6, end: 11, progress: 0 },
+                { name: "Análisis de Datos Operacionales (PQRS)", start: 8, end: 12, progress: 0 },
+                { name: "Consolidación de Hallazgos", start: 11, end: 14, progress: 0 },
+                { name: "Elaboración y Presentación del Informe", start: 14, end: 16, progress: 0 },
+            ];
+
+            window.updateGanttActivity = (index, field, value) => {
+                ganttData[index][field] = (field === 'name') ? value : parseInt(value, 10);
+                // No need to re-render for simple value changes, only for structural ones.
+            }
+            
+            window.addGanttActivity = () => {
+                const lastActivity = ganttData[ganttData.length - 1] || { end: 0 };
+                const newStart = Math.min(lastActivity.end + 1, 16);
+                const newEnd = Math.min(newStart + 1, 16);
+                ganttData.push({ name: "Nueva Actividad", start: newStart, end: newEnd, progress: 0 });
+                renderGantt(); // Re-render after adding
+            }
+
+            window.removeGanttActivity = (index) => {
+                ganttData.splice(index, 1);
+                renderGantt(); // Re-render after removing
+            }
+            
+            function renderGantt() {
+                const weeks = 16;
+                let headerHtml = `<div class="grid grid-cols-[250px_repeat(16,minmax(0,1fr))] gap-1 text-center text-xs font-bold text-slate-500 mb-2"><div class="pl-8 text-left">Actividad</div>`;
+                for (let i = 1; i <= weeks; i++) headerHtml += `<div>${i}</div>`;
+                headerHtml += `</div>`;
+
+                let rowsHtml = ganttData.map((activity, index) => {
+                    const offset = activity.start - 1;
+                    const duration = activity.end - activity.start + 1;
+                    const barHtml = `<div class="absolute h-full bg-teal-200 rounded" style="left: ${offset/weeks*100}%; width: ${duration/weeks*100}%;"><div id="progress-bar-${index}" class="h-full bg-teal-500 rounded" style="width: ${activity.progress}%;"></div></div>`;
+                    
+                    return `
+                        <div class="border-b border-slate-200 py-2 group">
+                            <div class="grid grid-cols-[250px_1fr] gap-2 items-center">
+                                <div class="text-sm flex items-center item-container">
+                                    <button class="delete-btn text-rose-500 mr-2 font-bold" onclick="removeGanttActivity(${index})">×</button>
+                                    <span contenteditable="true" onblur="updateGanttActivity(${index}, 'name', this.innerText)">${activity.name}</span>
+                                </div>
+                                <div class="h-8 relative bg-slate-100 rounded">${barHtml}</div>
+                            </div>
+                            <div class="grid grid-cols-[250px_1fr] gap-2 mt-2">
+                                <div></div>
+                                <div class="flex flex-wrap justify-between items-center gap-4">
+                                    <div><label class="text-xs">Inicio(S):</label> <input type="number" min="1" max="${weeks}" value="${activity.start}" onchange="updateGanttActivity(${index}, 'start', this.value); renderGantt();" class="w-16 p-1 border rounded text-xs"></div>
+                                    <div><label class="text-xs">Fin(S):</label> <input type="number" min="1" max="${weeks}" value="${activity.end}" onchange="updateGanttActivity(${index}, 'end', this.value); renderGantt();" class="w-16 p-1 border rounded text-xs"></div>
+                                    <div class="flex-grow flex items-center gap-2 min-w-[150px]"><label class="text-xs">Progreso:</label> <input type="range" min="0" max="100" value="${activity.progress}" oninput="this.nextElementSibling.textContent = this.value + '%'; document.getElementById('progress-bar-${index}').style.width = this.value + '%';" onchange="updateGanttActivity(${index}, 'progress', this.value)" class="w-full"><span class="text-xs font-semibold w-10 text-right">${activity.progress}%</span></div>
+                                </div>
+                            </div>
+                        </div>`;
+                }).join('');
+
+                ganttContainer.innerHTML = `
+                    <div class="bg-white p-6 md:p-8 rounded-xl shadow-xl border border-slate-200">
+                        <div class="overflow-x-auto pb-4"><div style="min-width: 900px;">${headerHtml}<div class="space-y-1">${rowsHtml}</div></div></div>
+                        <div class="mt-4 text-right"><button onclick="addGanttActivity()" class="bg-cyan-600 text-white font-semibold py-1 px-3 rounded-lg hover:bg-cyan-700 transition text-sm">+ Añadir Actividad</button></div>
+                    </div>`;
+            }
+            renderGantt(); // Initial render
+
+            // --- TEAM ORGANIGRAM LOGIC ---
+            const teamContainer = document.getElementById('team-organigram-container');
+            if (!teamContainer) return;
+
+            let teamData = {
+                sponsor: "Karen Álzate M.", scrumMasters: ["Carolina Manzo", "Wilson Pareja"],
+                developers: ["Innovación", "Atención al Usuario", "Practicante 1", "Practicante 2"], support: ["CEA", "TED"]
+            };
+
+            window.updateTeamData = (role, index, value) => {
+                if (index !== null) {
+                    teamData[role][index] = value;
+                } else {
+                    teamData[role] = value;
+                }
+            }
+
+            window.addDeveloper = () => {
+                teamData.developers.push("Nuevo Miembro");
+                renderTeam();
+            }
+
+            window.removeDeveloper = (index) => {
+                teamData.developers.splice(index, 1);
+                renderTeam();
+            }
+
+            function renderTeam() {
+                let developersHTML = teamData.developers.map((dev, index) => `
+                    <div class="item-container flex items-center gap-2 bg-indigo-100 text-indigo-800 font-bold py-2 px-4 rounded-lg">
+                        <span contenteditable="true" onblur="updateTeamData('developers', ${index}, this.innerText)">${dev}</span>
+                        <button class="delete-btn text-rose-500 font-bold leading-none" onclick="removeDeveloper(${index})">×</button>
+                    </div>`).join('');
+
+                teamContainer.innerHTML = `
+                    <h3 class="text-2xl font-bold text-slate-800 mb-6">🤝 El Equipo Impulsor</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-semibold text-slate-500 text-sm tracking-wider uppercase">Sponsor o PO</h4>
+                            <div class="inline-block bg-sky-100 text-sky-800 font-bold py-2 px-4 rounded-lg mt-1"><span contenteditable="true" onblur="updateTeamData('sponsor', null, this.innerText)">${teamData.sponsor}</span></div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-slate-500 text-sm tracking-wider uppercase">Scrum Masters</h4>
+                            <div class="flex justify-center gap-4 mt-1">
+                                <div class="bg-teal-100 text-teal-800 font-bold py-2 px-4 rounded-lg"><span contenteditable="true" onblur="updateTeamData('scrumMasters', 0, this.innerText)">${teamData.scrumMasters[0]}</span></div>
+                                <div class="bg-teal-100 text-teal-800 font-bold py-2 px-4 rounded-lg"><span contenteditable="true" onblur="updateTeamData('scrumMasters', 1, this.innerText)">${teamData.scrumMasters[1]}</span></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-center items-center gap-4">
+                                <h4 class="font-semibold text-slate-500 text-sm tracking-wider uppercase">Developers</h4>
+                                <button onclick="addDeveloper()" class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded-full">+</button>
+                            </div>
+                            <div class="flex justify-center flex-wrap gap-3 mt-1">${developersHTML}</div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-slate-500 text-sm tracking-wider uppercase">Equipos Apoyo</h4>
+                            <div class="flex justify-center gap-4 mt-1">
+                                <div class="bg-slate-200 text-slate-800 font-bold py-2 px-4 rounded-lg"><span contenteditable="true" onblur="updateTeamData('support', 0, this.innerText)">${teamData.support[0]}</span></div>
+                                <div class="bg-slate-200 text-slate-800 font-bold py-2 px-4 rounded-lg"><span contenteditable="true" onblur="updateTeamData('support', 1, this.innerText)">${teamData.support[1]}</span></div>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+            renderTeam(); // Initial render
+        }
+    </script>
+</body>
+</html>
